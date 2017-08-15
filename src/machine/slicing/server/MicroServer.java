@@ -134,7 +134,7 @@ import org.opcfoundation.ua.core.WriteResponse;
 import org.opcfoundation.ua.core.WriteValue;
 import org.opcfoundation.ua.encoding.DecodingException;
 import org.opcfoundation.ua.encoding.IEncodeable;
-import org.opcfoundation.ua.examples.certs.ExampleKeys;
+import machine.slicing.certs.ExampleKeys;
 import org.opcfoundation.ua.transport.Endpoint;
 import org.opcfoundation.ua.transport.endpoint.EndpointServiceRequest;
 import org.opcfoundation.ua.transport.security.BcCryptoProvider;
@@ -464,13 +464,11 @@ public class MicroServer {
 					// by onBrowse- and onTranslateBrowsePathsToNodeIds methods.
 					nextBrowseResult = getBrowsePathTarget(nodeId, referenceTypeId, browseDirection, 
 														   currentNodeToBrowse.getIncludeSubtypes());
-
 					/*
 					 * Responses are "filtered" by deleting unwanted references.
 					 */
 					UnsignedInteger nodeClassMask = currentNodeToBrowse.getNodeClassMask();
-					if (!(new UnsignedInteger(255).equals(nodeClassMask))
-							&& !(new UnsignedInteger(0).equals(nodeClassMask))) {
+					if (!(new UnsignedInteger(255).equals(nodeClassMask)) && !(new UnsignedInteger(0).equals(nodeClassMask))) {
 						// Node Class Mask is not 255 or 0.
 						/*
 						 * See OPC UA part 4 table 33 Browse Service Parameters
@@ -489,13 +487,10 @@ public class MicroServer {
 															new ReferenceDescription[newReferenceDescriptions.size()]));
 						}
 					}
-					if (currentNodeToBrowse.getResultMask().intValue() != 63) {
-						// Specifies the fields in the ReferenceDescription
-						// structure that should be returned.
-						// OPC UA part 4 - Services page 40, table 30.
+					int currentNodeResultMask = currentNodeToBrowse.getResultMask().intValue();
+					if (currentNodeResultMask != 63) {
 						ReferenceDescription[] referenceDescriptions = nextBrowseResult.getReferences();
 						if (referenceDescriptions != null) {
-							int currentNodeResultMask = currentNodeToBrowse.getResultMask().intValue();
 							for (ReferenceDescription rd : referenceDescriptions) {
 								if ((1 & currentNodeResultMask) == 0) {
 									// ReferenceType to null
@@ -532,7 +527,7 @@ public class MicroServer {
 							// RequestedMaxReferencesPerNode is smaller than
 							// amount of references
 							if (nextBrowseResult.getReferences().length > maxReferencesPerNode) {
-								if (continuationPoint == null) {
+								if (continuationPoints == null) {
 									ReferenceDescription[] referenceDescriptions = nextBrowseResult.getReferences();
 									List<ReferenceDescription> newReferenceDescriptions = new ArrayList<ReferenceDescription>();
 									List<ReferenceDescription> continuationPointReferenceDescriptions = new ArrayList<ReferenceDescription>();
@@ -2015,7 +2010,7 @@ public class MicroServer {
 	static ArrayList<NodeId> sessions;
 	static ArrayList<NodeId> validAuthenticationTokens;
 	static Map<NodeId, Long> timeoutPeriods;
-	static ArrayList<ContinuationPoint> continuationPoints;
+	static ArrayList<byte[]> continuationPoints;
 	static MicroServerExample microServer;
 
 	/**
